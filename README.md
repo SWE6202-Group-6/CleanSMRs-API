@@ -21,6 +21,20 @@ Prefer one of `env`, `venv` or `.venv` for your virtual environment name as thes
 file. If you choose another name, please make sure to add it to a line in `.gitignore` to ensure it is not committed to 
 the repository - they can be quite large on disk.
 
+Activate the virtual environment.
+
+Windows:
+
+```
+source .venv/Scripts/activate
+```
+
+Mac/Linux:
+
+```
+source .venv/bin/activate
+```
+
 To install required packages for the first time, execute the following:
 
 ```
