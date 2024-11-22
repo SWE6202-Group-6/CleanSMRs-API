@@ -3,3 +3,22 @@
 from flask_sqlalchemy import SQLAlchemy
 
 db = SQLAlchemy()
+# class def for SQLAlchemy ORM
+class Observation(db.Model):
+ """Definition of the User Model used by SQLAlchemy"""
+ id = db.Column(db.Integer, primary_key=True, auto_increment=True)
+ date_logged = db.Column(db.Date, nullable=False)
+ time_logged = db.Column(db.Time, nullable=False)
+ time_zone_offset = db.Column(db.String(80), nullable=False)
+ latitude = db.Column(db.Float, nullable=False)
+ longitude = db.Column(db.Float, nullable=False)
+ water_temp = db.Column(db.Integer, nullable=False)
+ air_temp = db.Column(db.Integer, nullable=False)
+ wind_speed = db.Column(db.Integer, nullable=False)
+ wind_direction = db.Column(db.Integer, nullable=False)
+ humidity = db.Column(db.Integer, nullable=False)
+ haze_percent = db.Column(db.Integer, nullable=False)
+ precipitation_mm = db.Column(db.Integer, nullable=False)
+ radiation_bq = db.Column(db.Integer, nullable=False)
+
+
