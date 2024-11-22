@@ -3,6 +3,7 @@
 from flask_marshmallow import Marshmallow
 
 import app
+from models import Observation
 
 ma = Marshmallow(app)
 
@@ -12,6 +13,10 @@ class ObservationSchema(ma.SQLAlchemyAutoSchema):
 
     class Meta:
         """Metadata for the ObservationSchema."""
+
+        model = Observation
+        load_instance = True
+        ordered = True
 
         fields = (
             "id",
