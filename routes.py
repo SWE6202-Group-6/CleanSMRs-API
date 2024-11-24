@@ -3,7 +3,7 @@
 from flask import Blueprint, jsonify, request
 from marshmallow import ValidationError
 
-from models import db
+from models import Observation, db
 from schemas import ObservationSchema
 
 # Create a Flask Blueprint for the routes
@@ -32,4 +32,25 @@ def create_observation():
     except ValidationError as error:
         # Return any validation errors as JSON along with a Bad Request status
         # code.
+        return jsonify(error.messages), 400
+
+
+@api.route("/observations/<int:observation_id>", methods=["PUT"])
+def put_observation(observation_id):
+    """Perform a full update of an existing Observation record."""
+
+    observation = Observation.query.filter_by(id=observation_id).first()
+    if not observation:
+        return jsonify({"error": "Observation not found"}), 404
+
+    try:
+        data = request.get_json()
+
+        # Setting instance=observation updates the entity we've retrieved from
+        # the database with the new data provided in the request JSON.
+        observation = ObservationSchema().load(data, instance=observation)
+        db.session.commit()
+
+        return ObservationSchema().jsonify(observation), 200
+    except ValidationError as error:
         return jsonify(error.messages), 400
