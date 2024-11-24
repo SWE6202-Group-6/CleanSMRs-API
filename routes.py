@@ -56,6 +56,8 @@ def put_observation(observation_id):
 
     try:
         data = request.get_json()
+        if data["id"] and data["id"] != observation_id:
+            return jsonify(error="ID in request body does not match URL"), 400
 
         # Setting instance=observation updates the entity we've retrieved from
         # the database with the new data provided in the request JSON.
@@ -84,6 +86,8 @@ def patch_observation(observation_id):
 
     try:
         data = request.get_json()
+        if data["id"] and data["id"] != observation_id:
+            return jsonify(error="ID in request body does not match URL"), 400
 
         # Setting partial=True allows us to perform a partial update on the
         # entity, only updating the fields provided in the request JSON.
