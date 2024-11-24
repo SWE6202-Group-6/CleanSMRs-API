@@ -54,3 +54,26 @@ def put_observation(observation_id):
         return ObservationSchema().jsonify(observation), 200
     except ValidationError as error:
         return jsonify(error.messages), 400
+
+
+@api.route("/observations/<int:observation_id>", methods=["PATCH"])
+def patch_observation(observation_id):
+    """Perform a partial update on an existing Observation record."""
+
+    observation = Observation.query.filter_by(id=observation_id).first()
+    if not observation:
+        return jsonify({"error": "Observation not found"}), 404
+
+    try:
+        data = request.get_json()
+
+        # Setting partial=True allows us to perform a partial update on the
+        # entity, only updating the fields provided in the request JSON.
+        observation = ObservationSchema().load(
+            data, instance=observation, partial=True
+        )
+        db.session.commit()
+
+        return ObservationSchema().jsonify(observation), 200
+    except ValidationError as error:
+        return jsonify(error.messages), 400
