@@ -12,7 +12,11 @@ api = Blueprint("api", __name__)
 
 @api.route("/observations/create", methods=["POST"])
 def create_observation():
-    """Creates a new Observation record."""
+    """Creates a new Observation record.
+
+    Returns:
+        Response: A JSON representation of the created observation.
+    """
 
     # Loading the request JSON into an Observation instance using the schema
     # will carry out basic validation, ensuring all fields are provided or else
@@ -37,7 +41,14 @@ def create_observation():
 
 @api.route("/observations/<int:observation_id>", methods=["PUT"])
 def put_observation(observation_id):
-    """Perform a full update of an existing Observation record."""
+    """Perform a full update of an existing Observation record.
+
+    Args:
+        observation_id (int): The ID of the observation to update.
+
+    Returns:
+        Response: A JSON representation of the updated observation.
+    """
 
     observation = Observation.query.filter_by(id=observation_id).first()
     if not observation:
@@ -58,7 +69,14 @@ def put_observation(observation_id):
 
 @api.route("/observations/<int:observation_id>", methods=["PATCH"])
 def patch_observation(observation_id):
-    """Perform a partial update on an existing Observation record."""
+    """Perform a partial update of an existing Observation record.
+
+    Args:
+        observation_id (int): The ID of the observation to update.
+
+    Returns:
+        Response: A JSON representation of the updated observation.
+    """
 
     observation = Observation.query.filter_by(id=observation_id).first()
     if not observation:
