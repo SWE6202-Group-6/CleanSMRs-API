@@ -10,7 +10,7 @@ from schemas import ObservationSchema
 api = Blueprint("api", __name__)
 
 
-@api.route("/observations/create", methods=["POST"])
+@api.route("/observations", methods=["POST"])
 def create_observation():
     """Creates a new Observation record.
 
