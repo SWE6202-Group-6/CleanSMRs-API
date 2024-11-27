@@ -9,7 +9,7 @@ ma = Marshmallow(app)
 
 
 class ObservationSchema(ma.SQLAlchemyAutoSchema):
-    """Definition used by serialization library based on User Model"""
+    """Definition used by serialization library based on Observation Model"""
 
     class Meta:
         """Metadata for the ObservationSchema."""
