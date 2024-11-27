@@ -1,0 +1,252 @@
+{
+  "openapi": "3.0.3",
+  "info": {
+    "title": "Clean_SMRs - OpenAPI 3.0",
+    "version": "1.0.0",
+    "description": ""
+  },
+  "tags": [
+    {
+      "name": "Observations",
+      "description": "Climate observation"
+    }
+  ],
+  "paths": {
+    "/Observations": {
+      "put": {
+        "tags": [
+          "Observations"
+        ],
+        "summary": "Observations",
+        "description": "Update an existing observation by Id",
+        "requestBody": {
+          "description": "Update an existent observation",
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/Observation"
+              }
+            }
+          },
+          "required": true
+        },
+        "responses": {
+          "200": {
+            "description": "Successful operation",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Observation"
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "Invalid data supplied"
+          },
+          "404": {
+            "description": "Observation not found"
+          }
+        }
+      },
+      "post": {
+        "tags": [
+          "Observations"
+        ],
+        "summary": "Observations",
+        "description": "Create  a new observation by Id",
+        "requestBody": {
+          "description": "Create a new observation",
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/Observation"
+              }
+            }
+          },
+          "required": true
+        },
+        "responses": {
+          "201": {
+            "description": "Successful operation",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Observation"
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "Invalid data supplied"
+          }
+        }
+      },
+      "get": {
+        "tags": [
+          "Observations"
+        ],
+        "summary": "Get observations",
+        "description": "Get a list of observations",
+        "responses": {
+          "200": {
+            "description": "successful operation",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "array",
+                  "items": {
+                    "$ref": "#/components/schemas/Observation"
+                  }
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/observations/{observation_id}": {
+      "delete": {
+        "tags": [
+          "Observations"
+        ],
+        "summary": "Deletes an observation",
+        "description": "delete an observation",
+        "operationId": "deleteObservation",
+        "parameters": [
+          {
+            "name": "observation_id",
+            "in": "path",
+            "description": "observation id to delete",
+            "required": true,
+            "schema": {
+              "type": "integer",
+              "format": "int64"
+            }
+          }
+        ],
+        "responses": {
+          "400": {
+            "description": "Invalid observation value"
+          }
+        }
+      },
+      "patch": {
+        "tags": [
+          "Observations"
+        ],
+        "summary": "update an observation",
+        "description": "update an observation",
+        "operationId": "updateObservation",
+        "parameters": [
+          {
+            "name": "observation_id",
+            "in": "path",
+            "description": "observation id to update",
+            "required": true,
+            "schema": {
+              "type": "integer",
+              "format": "int64"
+            }
+          }
+        ],
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/Observation"
+              }
+            }
+          },
+          "required": true
+        },
+        "responses": {
+          "200": {
+            "description": "Successful operation",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Observation"
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "Invalid data supplied"
+          },
+          "404": {
+            "description": "Observation not found"
+          }
+        }
+      }
+    }
+  },
+  "components": {
+    "schemas": {
+      "Observation": {
+        "type": "object",
+        "properties": {
+          "id": {
+            "type": "integer",
+            "format": "int64",
+            "example": 10
+          },
+          "date_logged": {
+            "type": "string",
+            "format": "date",
+            "example": "2024/11/26"
+          },
+          "time_logged": {
+            "type": "string",
+            "format": "time",
+            "example": "20:16:20"
+          },
+          "time_zone_offset": {
+            "type": "string",
+            "example": "+03:00"
+          },
+          "latitude": {
+            "type": "number",
+            "example": 51.00007
+          },
+          "longtitude": {
+            "type": "number",
+            "example": -3.5678
+          },
+          "water_temp": {
+            "type": "number",
+            "example": 5
+          },
+          "air_temp": {
+            "type": "number",
+            "example": 7
+          },
+          "wind_speed": {
+            "type": "number",
+            "example": 80
+          },
+          "wind_direction": {
+            "type": "number",
+            "example": 90
+          },
+          "humidity": {
+            "type": "number",
+            "example": 8
+          },
+          "haze_percent": {
+            "type": "number",
+            "example": 40
+          },
+          "precipitation_mm": {
+            "type": "number",
+            "example": 30
+          },
+          "radiation_bq": {
+            "type": "number",
+            "example": 1
+          }
+        }
+      }
+    }
+  }
+}
