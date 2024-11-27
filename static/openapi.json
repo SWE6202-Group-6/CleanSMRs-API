@@ -3,7 +3,7 @@
   "info": {
     "title": "Clean_SMRs - OpenAPI 3.0",
     "version": "1.0.0",
-    "description": ""
+    "description": "CleanSMRs Observation Data API"
   },
   "tags": [
     {
@@ -12,13 +12,82 @@
     }
   ],
   "paths": {
-    "/Observations": {
+    "/observations": {
+      "get": {
+        "tags": [
+          "Observations"
+        ],
+        "summary": "Get observations",
+        "description": "Get a list of observations",
+        "responses": {
+          "200": {
+            "description": "successful operation",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "array",
+                  "items": {
+                    "$ref": "#/components/schemas/Observation"
+                  }
+                }
+              }
+            }
+          }
+        }
+      },
+      "post": {
+        "tags": [
+          "Observations"
+        ],
+        "summary": "Create a new observation",
+        "description": "Create a new observation",
+        "requestBody": {
+          "description": "Create a new observation",
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/Observation"
+              }
+            }
+          },
+          "required": true
+        },
+        "responses": {
+          "201": {
+            "description": "Successful operation",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Observation"
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "Invalid data supplied"
+          }
+        }
+      }
+    },
+    "/observations/{observation_id}": {
       "put": {
         "tags": [
           "Observations"
         ],
-        "summary": "Observations",
+        "summary": "Update an existing observation",
         "description": "Update an existing observation by Id",
+        "parameters": [
+          {
+            "name": "observation_id",
+            "in": "path",
+            "description": "observation id to update",
+            "required": true,
+            "schema": {
+              "type": "integer",
+              "format": "int64"
+            }
+          }
+        ],
         "requestBody": {
           "description": "Update an existent observation",
           "content": {
@@ -49,93 +118,11 @@
           }
         }
       },
-      "post": {
-        "tags": [
-          "Observations"
-        ],
-        "summary": "Observations",
-        "description": "Create  a new observation by Id",
-        "requestBody": {
-          "description": "Create a new observation",
-          "content": {
-            "application/json": {
-              "schema": {
-                "$ref": "#/components/schemas/Observation"
-              }
-            }
-          },
-          "required": true
-        },
-        "responses": {
-          "201": {
-            "description": "Successful operation",
-            "content": {
-              "application/json": {
-                "schema": {
-                  "$ref": "#/components/schemas/Observation"
-                }
-              }
-            }
-          },
-          "400": {
-            "description": "Invalid data supplied"
-          }
-        }
-      },
-      "get": {
-        "tags": [
-          "Observations"
-        ],
-        "summary": "Get observations",
-        "description": "Get a list of observations",
-        "responses": {
-          "200": {
-            "description": "successful operation",
-            "content": {
-              "application/json": {
-                "schema": {
-                  "type": "array",
-                  "items": {
-                    "$ref": "#/components/schemas/Observation"
-                  }
-                }
-              }
-            }
-          }
-        }
-      }
-    },
-    "/observations/{observation_id}": {
-      "delete": {
-        "tags": [
-          "Observations"
-        ],
-        "summary": "Deletes an observation",
-        "description": "delete an observation",
-        "operationId": "deleteObservation",
-        "parameters": [
-          {
-            "name": "observation_id",
-            "in": "path",
-            "description": "observation id to delete",
-            "required": true,
-            "schema": {
-              "type": "integer",
-              "format": "int64"
-            }
-          }
-        ],
-        "responses": {
-          "400": {
-            "description": "Invalid observation value"
-          }
-        }
-      },
       "patch": {
         "tags": [
           "Observations"
         ],
-        "summary": "update an observation",
+        "summary": "Update an existing observation",
         "description": "update an observation",
         "operationId": "updateObservation",
         "parameters": [
@@ -178,6 +165,31 @@
             "description": "Observation not found"
           }
         }
+      },
+      "delete": {
+        "tags": [
+          "Observations"
+        ],
+        "summary": "Deletes an observation",
+        "description": "delete an observation",
+        "operationId": "deleteObservation",
+        "parameters": [
+          {
+            "name": "observation_id",
+            "in": "path",
+            "description": "observation id to delete",
+            "required": true,
+            "schema": {
+              "type": "integer",
+              "format": "int64"
+            }
+          }
+        ],
+        "responses": {
+          "404": {
+            "description": "Observation not found"
+          }
+        }
       }
     }
   },
@@ -194,7 +206,7 @@
           "date_logged": {
             "type": "string",
             "format": "date",
-            "example": "2024/11/26"
+            "example": "2024-11-26"
           },
           "time_logged": {
             "type": "string",
