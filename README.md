@@ -54,6 +54,24 @@ details, any secrets etc. to it:
 cp .env.example .env
 ```
 
+Configure the database by setting the `SQLALCHEMY_DATABASE_URI` variable. For example, to use SQLite:
+
+```
+SQLALCHEMY_DATABASE_URI="sqlite:///api.db"
+```
+
+Or to use MySQL, provide a MySQL connection string for a local or remote server, e.g.:
+
+```
+SQLALCHEMY_DATABASE_URI="mysql://{username}:{password}@localhost/{databasename}"
+```
+
+Note that a database should be created on the server first, e.g.:
+
+```
+CREATE DATABASE observations;
+```
+
 ## Contributing
 
 Visual Studio Code is the recommended editor. The following extensions are useful:
