@@ -19,6 +19,9 @@ app.config["SQLALCHEMY_TRACK_MODIFICATIONS"] = config[
     "SQLALCHEMY_TRACK_MODIFICATIONS"
 ]
 
+# Ensure that JSON responses are ordered according to our specified field order
+app.json.sort_keys = False
+
 # Initialise the database and Marshmallow
 db.init_app(app)
 ma.init_app(app)
