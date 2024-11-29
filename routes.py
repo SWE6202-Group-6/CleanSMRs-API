@@ -1,16 +1,59 @@
 """Defines routes and handler functions."""
 
+from datetime import datetime, timedelta, timezone
+
+import jwt
+from dotenv import dotenv_values
 from flask import Blueprint, jsonify, request
 from marshmallow import ValidationError
 
+from auth import token_required
 from models import Observation, db
 from schemas import ObservationSchema
+
+config = dotenv_values(".env")
 
 # Create a Flask Blueprint for the routes
 api = Blueprint("api", __name__)
 
 
+@api.route("/login", methods=["GET"])
+def login():
+    """Attempts to log a user in with the provided credentials.
+
+    Note that this endpoint is for demo purposes and should be replaced by
+    requesting a token from the CleanSMRs website in future.
+
+    Returns:
+        Response: A JSON web token or an error message.
+    """
+
+    auth = request.authorization
+
+    if auth:
+        if (
+            auth.username == config["DEMO_USERNAME"]
+            and auth.password == config["DEMO_PASSWORD"]
+        ):
+            token = jwt.encode(
+                {
+                    "user": auth.username,
+                    "iss": "CleanSMRs API",
+                    "iat": datetime.now(timezone.utc),
+                    "exp": datetime.now(timezone.utc) + timedelta(minutes=30),
+                },
+                config["SECRET_KEY"],
+            )
+
+            return jsonify(token=token), 200
+
+        return jsonify(message="Invalid credentials"), 401
+
+    return jsonify(message="Missing credentials"), 401
+
+
 @api.route("/observations", methods=["POST"])
+@token_required
 def create_observation():
     """Creates a new Observation record.
 
@@ -40,6 +83,7 @@ def create_observation():
 
 
 @api.route("/observations/create-many", methods=["POST"])
+@token_required
 def create_multiple_observations():
     """Create multiple new observation records.
 
@@ -58,6 +102,7 @@ def create_multiple_observations():
 
 
 @api.route("/observations/<int:observation_id>", methods=["PUT"])
+@token_required
 def put_observation(observation_id):
     """Perform a full update of an existing Observation record.
 
@@ -88,6 +133,7 @@ def put_observation(observation_id):
 
 
 @api.route("/observations/<int:observation_id>", methods=["PATCH"])
+@token_required
 def patch_observation(observation_id):
     """Perform a partial update of an existing Observation record.
 
@@ -124,6 +170,7 @@ def patch_observation(observation_id):
 
 
 @api.route("/observations/<int:observation_id>", methods=["DELETE"])
+@token_required
 def delete_observation(observation_id):
     """Deletes an observation by ID.
 
@@ -145,6 +192,7 @@ def delete_observation(observation_id):
     return "", 204
 # START: New GET (parameterised queries)
 @api.route("/observations", methods=["GET"])
+@token_required
 def get_observations():
     """Retrieves observations based on filtering criteria.
 
