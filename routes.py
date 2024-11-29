@@ -39,6 +39,24 @@ def create_observation():
         return jsonify(error.messages), 400
 
 
+@api.route("/observations/create-many", methods=["POST"])
+def create_multiple_observations():
+    """Create multiple new observation records.
+
+    Returns:
+        Response: A JSON list of the created observations.
+    """
+
+    try:
+        observations = ObservationSchema(many=True).load(request.get_json())
+        db.session.add_all(observations)
+        db.session.commit()
+
+        return ObservationSchema(many=True).jsonify(observations), 201
+    except ValidationError as error:
+        return jsonify(error.messages, 400)
+
+
 @api.route("/observations/<int:observation_id>", methods=["PUT"])
 def put_observation(observation_id):
     """Perform a full update of an existing Observation record.

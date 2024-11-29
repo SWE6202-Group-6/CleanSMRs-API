@@ -47,6 +47,44 @@
         }
       }
     },
+    "/observations/create-many": {
+      "post": {
+        "tags": [
+          "Observations"
+        ],
+        "summary": "Create multiple new observations",
+        "description": "Create multiple new observations",
+        "requestBody": {
+          "description": "Create multiple new observations",
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "array",
+                "items": {
+                  "$ref": "#/components/schemas/Observation"
+                }
+              }
+            }
+          },
+          "required": true
+        },
+        "responses": {
+          "201": {
+            "description": "Successful operation",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Observation"
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "Invalid data supplied"
+          }
+        }
+      }
+    },
     "/observations/{observation_id}": {
       "put": {
         "tags": [
