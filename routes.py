@@ -14,8 +14,6 @@ from utils import is_same_quarter
 
 config = dotenv_values(".env")
 
-config = dotenv_values(".env")
-
 # Create a Flask Blueprint for the routes
 api = Blueprint("api", __name__)
 
