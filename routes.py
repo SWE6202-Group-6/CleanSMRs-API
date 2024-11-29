@@ -103,3 +103,75 @@ def patch_observation(observation_id):
         return ObservationSchema().jsonify(observation), 200
     except ValidationError as error:
         return jsonify(error.messages), 400
+# START: New GET (parameterised queries)
+@api.route("/observations", methods=["GET"])
+def get_observations():
+    """Retrieves observations based on filtering criteria.
+
+    Returns:
+        Response: A JSON representation of the filtered observations.
+    """
+
+    # These are the parameters we would be querying on 
+    date_from = request.args.get('date_from')  # Format: YYYY-MM-DD
+    date_to = request.args.get('date_to')      # Format: YYYY-MM-DD
+    min_latitude = request.args.get('min_latitude', type=float)
+    max_latitude = request.args.get('max_latitude', type=float)
+    min_longitude = request.args.get('min_longitude', type=float)
+    max_longitude = request.args.get('max_longitude', type=float)
+
+    # Extraction of the min or max filters for other numeric fields
+    filters = {
+        "min_water_temp": request.args.get('min_water_temp', type=int),
+        "max_water_temp": request.args.get('max_water_temp', type=int),
+        "min_air_temp": request.args.get('min_air_temp', type=int),
+        "max_air_temp": request.args.get('max_air_temp', type=int),
+        "min_wind_speed": request.args.get('min_wind_speed', type=int),
+        "max_wind_speed": request.args.get('max_wind_speed', type=int),
+        "min_humidity": request.args.get('min_humidity', type=int),
+        "max_humidity": request.args.get('max_humidity', type=int),
+        "min_haze_percent": request.args.get('min_haze_percent', type=int),
+        "max_haze_percent": request.args.get('max_haze_percent', type=int),
+        "min_precipitation_mm": request.args.get('min_precipitation_mm', type=int),
+        "max_precipitation_mm": request.args.get('max_precipitation_mm', type=int),
+        "min_radiation_bq": request.args.get('min_radiation_bq', type=int),
+        "max_radiation_bq": request.args.get('max_radiation_bq', type=int),
+    }
+
+    # the biulding of the query
+    query = Observation.query
+
+    # This is where we apply date range filtering
+    if date_from:
+        query = query.filter(Observation.date_logged >= date_from)
+    if date_to:
+        query = query.filter(Observation.date_logged <= date_to)
+
+    # latitude/longitude range filtering
+    if min_latitude is not None:
+        query = query.filter(Observation.latitude >= min_latitude)
+    if max_latitude is not None:
+        query = query.filter(Observation.latitude <= max_latitude)
+    if min_longitude is not None:
+        query = query.filter(Observation.longitude >= min_longitude)
+    if max_longitude is not None:
+        query = query.filter(Observation.longitude <= max_longitude)
+
+    # numeric filters dynamically
+    for key, value in filters.items():
+        if value is not None:
+            field_name, op = key.split('_')
+            field = getattr(Observation, field_name)
+            if op == 'min':
+                query = query.filter(field >= value)
+            elif op == 'max':
+                query = query.filter(field <= value)
+
+    # We execute the query lol
+    observations = query.all()
+
+    # Then we turn the results into a json response format
+    data = ObservationSchema(many=True).dump(observations)
+
+    return jsonify({"data": data, "total": len(data)})
+# END
