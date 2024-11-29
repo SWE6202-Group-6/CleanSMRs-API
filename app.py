@@ -28,7 +28,7 @@ db.init_app(app)
 ma.init_app(app)
 
 # Register the API blueprint for our route handlers
-app.register_blueprint(api_blueprint, url_prefix="/api")
+app.register_blueprint(api_blueprint)
 
 SWAGGER_URL = "/api/docs"  # URL for exposing Swagger UI (without trailing '/')
 API_URL = "/static/openapi.json"

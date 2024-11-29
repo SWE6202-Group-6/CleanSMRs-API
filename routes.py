@@ -52,7 +52,7 @@ def put_observation(observation_id):
 
     observation = Observation.query.filter_by(id=observation_id).first()
     if not observation:
-        return jsonify({"error": "Observation not found"}), 404
+        return jsonify(error="Observation not found"), 404
 
     try:
         data = request.get_json()
@@ -82,7 +82,7 @@ def patch_observation(observation_id):
 
     observation = Observation.query.filter_by(id=observation_id).first()
     if not observation:
-        return jsonify({"error": "Observation not found"}), 404
+        return jsonify(error="Observation not found"), 404
 
     try:
         data = request.get_json()
@@ -103,6 +103,28 @@ def patch_observation(observation_id):
         return ObservationSchema().jsonify(observation), 200
     except ValidationError as error:
         return jsonify(error.messages), 400
+
+
+@api.route("/observations/<int:observation_id>", methods=["DELETE"])
+def delete_observation(observation_id):
+    """Deletes an observation by ID.
+
+    Args:
+        observation_id (int): The ID of the observation to delete.
+
+    Returns:
+        Response: An error or No Content.
+    """
+
+    observation = Observation.query.filter_by(id=observation_id).first()
+
+    if not observation:
+        return jsonify(error="Observation not found"), 404
+
+    db.session.delete(observation)
+    db.session.commit()
+
+    return "", 204
 # START: New GET (parameterised queries)
 @api.route("/observations", methods=["GET"])
 def get_observations():
