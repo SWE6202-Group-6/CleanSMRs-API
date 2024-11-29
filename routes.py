@@ -10,6 +10,9 @@ from marshmallow import ValidationError
 from auth import token_required
 from models import Observation, db
 from schemas import ObservationSchema
+from utils import is_same_quarter
+
+config = dotenv_values(".env")
 
 config = dotenv_values(".env")
 
@@ -117,6 +120,9 @@ def put_observation(observation_id):
     if not observation:
         return jsonify(error="Observation not found"), 404
 
+    if not is_same_quarter(observation):
+        return jsonify(error="Can only edit observations in this quarter"), 400
+
     try:
         data = request.get_json()
         if id in data and data["id"] != observation_id:
@@ -147,6 +153,9 @@ def patch_observation(observation_id):
     observation = Observation.query.filter_by(id=observation_id).first()
     if not observation:
         return jsonify(error="Observation not found"), 404
+
+    if not is_same_quarter(observation):
+        return jsonify(error="Can only edit observations in this quarter"), 400
 
     try:
         data = request.get_json()
