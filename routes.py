@@ -94,8 +94,6 @@ def create_observation():
     # will carry out basic validation, ensuring all fields are provided or else
     # raising an exception. We could further expand this by ensuring values
     # provided are within valid ranges, e.g. wind speed is between 0 and 360.
-    #
-    # TODO: Add additional validation to ensure all properties are valid.
     try:
         # Attempt to load the request JSON into an Observation using the schema
         observation = ObservationSchema().load(request.get_json())
