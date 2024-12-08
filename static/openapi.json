@@ -7,18 +7,316 @@
   },
   "tags": [
     {
+      "name": "Authentication",
+      "description": "Authentication endpoints"
+    },
+    {
       "name": "Observations",
       "description": "Climate observation"
     }
   ],
   "paths": {
+    "/login": {
+      "get": {
+        "tags": [
+          "Authentication"
+        ],
+        "summary": "Login",
+        "description": "Login using basic authentication to receive a JWT",
+        "security": [
+          {
+            "basicAuth": []
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Successful operation",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "token": {
+                      "type": "string",
+                      "example": "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ1c2VybmFtZSI6ImFkbWluIiwiaWF0IjoxNTE2MjM5MDIyfQ.SflKxwRJSMeKKF2QT4fwpMeJf36POk6yJV_adQssw5c"
+                    }
+                  }
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "Invalid username or password"
+          }
+        }
+      }
+    },
     "/observations": {
+      "get": {
+        "tags": [
+          "Observations"
+        ],
+        "summary": "Get observations with optional filters",
+        "description": "Get observations with optional filters",
+        "security": [
+          {
+            "bearerAuth": []
+          }
+        ],
+        "parameters": [
+          {
+            "name": "date_from",
+            "in": "query",
+            "description": "Earliest date to get records from",
+            "required": false,
+            "schema": {
+              "type": "string",
+              "format": "date",
+              "example": "2024-01-01"
+            }
+          },
+          {
+            "name": "date_to",
+            "in": "query",
+            "description": "Latest date to get records from",
+            "required": false,
+            "schema": {
+              "type": "string",
+              "format": "date",
+              "example": "2024-01-01"
+            }
+          },
+          {
+            "name": "min_latitude",
+            "in": "query",
+            "description": "The minimum latitude to get records for",
+            "required": false,
+            "schema": {
+              "type": "number",
+              "example": 51.00007
+            }
+          },
+          {
+            "name": "max_latitude",
+            "in": "query",
+            "description": "The maximum latitude to get records for",
+            "required": false,
+            "schema": {
+              "type": "number",
+              "example": 51.00007
+            }
+          },
+          {
+            "name": "min_longitude",
+            "in": "query",
+            "description": "The minimum longitude to get records for",
+            "required": false,
+            "schema": {
+              "type": "number",
+              "example": -3.5678
+            }
+          },
+          {
+            "name": "max_longitude",
+            "in": "query",
+            "description": "The maximum longitude to get records for",
+            "required": false,
+            "schema": {
+              "type": "number",
+              "example": -3.5678
+            }
+          },
+          {
+            "name": "min_water_temp",
+            "in": "query",
+            "description": "The minimum water temperature to get records for",
+            "required": false,
+            "schema": {
+              "type": "number",
+              "example": 5
+            }
+          },
+          {
+            "name": "max_water_temp",
+            "in": "query",
+            "description": "The maximum water temperature to get records for",
+            "required": false,
+            "schema": {
+              "type": "number",
+              "example": 5
+            }
+          },
+          {
+            "name": "min_air_temp",
+            "in": "query",
+            "description": "The minimum air temperature to get records for",
+            "required": false,
+            "schema": {
+              "type": "number",
+              "example": 7
+            }
+          },
+          {
+            "name": "max_air_temp",
+            "in": "query",
+            "description": "The maximum air temperature to get records for",
+            "required": false,
+            "schema": {
+              "type": "number",
+              "example": 7
+            }
+          },
+          {
+            "name": "min_wind_speed",
+            "in": "query",
+            "description": "The minimum wind speed to get records for",
+            "required": false,
+            "schema": {
+              "type": "number",
+              "example": 80
+            }
+          },
+          {
+            "name": "max_wind_speed",
+            "in": "query",
+            "description": "The maximum wind speed to get records for",
+            "required": false,
+            "schema": {
+              "type": "number",
+              "example": 80
+            }
+          },
+          {
+            "name": "min_wind_direction",
+            "in": "query",
+            "description": "The minimum wind direction to get records for",
+            "required": false,
+            "schema": {
+              "type": "number",
+              "example": 90
+            }
+          },
+          {
+            "name": "max_wind_direction",
+            "in": "query",
+            "description": "The maximum wind direction to get records for",
+            "required": false,
+            "schema": {
+              "type": "number",
+              "example": 90
+            }
+          },
+          {
+            "name": "min_humidity",
+            "in": "query",
+            "description": "The minimum humidity to get records for",
+            "required": false,
+            "schema": {
+              "type": "number",
+              "example": 8
+            }
+          },
+          {
+            "name": "max_humidity",
+            "in": "query",
+            "description": "The maximum humidity to get records for",
+            "required": false,
+            "schema": {
+              "type": "number",
+              "example": 8
+            }
+          },
+          {
+            "name": "min_haze_percent",
+            "in": "query",
+            "description": "The minimum haze percent to get records for",
+            "required": false,
+            "schema": {
+              "type": "number",
+              "example": 40
+            }
+          },
+          {
+            "name": "max_haze_percent",
+            "in": "query",
+            "description": "The maximum haze percent to get records for",
+            "required": false,
+            "schema": {
+              "type": "number",
+              "example": 40
+            }
+          },
+          {
+            "name": "min_precipitation_mm",
+            "in": "query",
+            "description": "The minimum precipitation in mm to get records for",
+            "required": false,
+            "schema": {
+              "type": "number",
+              "example": 10
+            }
+          },
+          {
+            "name": "max_precipitation_mm",
+            "in": "query",
+            "description": "The maximum precipitation in mm to get records for",
+            "required": false,
+            "schema": {
+              "type": "number",
+              "example": 10
+            }
+          },
+          {
+            "name": "min_radiation_bq",
+            "in": "query",
+            "description": "The minimum radiation in bq to get records for",
+            "required": false,
+            "schema": {
+              "type": "number",
+              "example": 1
+            }
+          },
+          {
+            "name": "max_radiation_bq",
+            "in": "query",
+            "description": "The maximum radiation in bq to get records for",
+            "required": false,
+            "schema": {
+              "type": "number",
+              "example": 1
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Succesful operation",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "array",
+                  "items": {
+                    "$ref": "#/components/schemas/Observation"
+                  }
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "Unauthorized"
+          }
+        }
+      },
       "post": {
         "tags": [
           "Observations"
         ],
         "summary": "Create a new observation",
         "description": "Create a new observation",
+        "security": [
+          {
+            "bearerAuth": []
+          }
+        ],
         "requestBody": {
           "description": "Create a new observation",
           "content": {
@@ -54,6 +352,11 @@
         ],
         "summary": "Create multiple new observations",
         "description": "Create multiple new observations",
+        "security": [
+          {
+            "bearerAuth": []
+          }
+        ],
         "requestBody": {
           "description": "Create multiple new observations",
           "content": {
@@ -84,135 +387,20 @@
           }
         }
       }
-    },
-    "/observations/{observation_id}": {
-      "put": {
-        "tags": [
-          "Observations"
-        ],
-        "summary": "Update an existing observation",
-        "description": "Update an existing observation by Id",
-        "parameters": [
-          {
-            "name": "observation_id",
-            "in": "path",
-            "description": "observation id to update",
-            "required": true,
-            "schema": {
-              "type": "integer",
-              "format": "int64"
-            }
-          }
-        ],
-        "requestBody": {
-          "description": "Update an existent observation",
-          "content": {
-            "application/json": {
-              "schema": {
-                "$ref": "#/components/schemas/Observation"
-              }
-            }
-          },
-          "required": true
-        },
-        "responses": {
-          "200": {
-            "description": "Successful operation",
-            "content": {
-              "application/json": {
-                "schema": {
-                  "$ref": "#/components/schemas/Observation"
-                }
-              }
-            }
-          },
-          "400": {
-            "description": "Invalid data supplied"
-          },
-          "404": {
-            "description": "Observation not found"
-          }
-        }
-      },
-      "patch": {
-        "tags": [
-          "Observations"
-        ],
-        "summary": "Update an existing observation",
-        "description": "update an observation",
-        "operationId": "updateObservation",
-        "parameters": [
-          {
-            "name": "observation_id",
-            "in": "path",
-            "description": "observation id to update",
-            "required": true,
-            "schema": {
-              "type": "integer",
-              "format": "int64"
-            }
-          }
-        ],
-        "requestBody": {
-          "content": {
-            "application/json": {
-              "schema": {
-                "$ref": "#/components/schemas/Observation"
-              }
-            }
-          },
-          "required": true
-        },
-        "responses": {
-          "200": {
-            "description": "Successful operation",
-            "content": {
-              "application/json": {
-                "schema": {
-                  "$ref": "#/components/schemas/Observation"
-                }
-              }
-            }
-          },
-          "400": {
-            "description": "Invalid data supplied"
-          },
-          "404": {
-            "description": "Observation not found"
-          }
-        }
-      },
-      "delete": {
-        "tags": [
-          "Observations"
-        ],
-        "summary": "Deletes an observation",
-        "description": "delete an observation",
-        "operationId": "deleteObservation",
-        "parameters": [
-          {
-            "name": "observation_id",
-            "in": "path",
-            "description": "observation id to delete",
-            "required": true,
-            "schema": {
-              "type": "integer",
-              "format": "int64"
-            }
-          }
-        ],
-        "responses": {
-          "204": {
-            "description": "Observation deleted"
-          },
-          "404": {
-            "description": "Observation not found"
-          }
-        }
-      }
     }
   },
   "components": {
+    "securitySchemes": {
+      "basicAuth": {
+        "type": "http",
+        "scheme": "basic"
+      },
+      "bearerAuth": {
+        "type": "http",
+        "scheme": "bearer",
+        "bearerFormat": "JWT"
+      }
+    },
     "schemas": {
       "Observation": {
         "type": "object",

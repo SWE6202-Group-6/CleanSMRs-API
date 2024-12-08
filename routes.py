@@ -10,7 +10,6 @@ from auth import token_required
 from config import config
 from models import Observation, db
 from schemas import ObservationSchema
-from utils import is_same_quarter
 
 # Create a Flask Blueprint for the routes
 api = Blueprint("api", __name__)
@@ -100,103 +99,6 @@ def create_multiple_observations():
         return jsonify(error.messages, 400)
 
 
-@api.route("/observations/<int:observation_id>", methods=["PUT"])
-@token_required
-def put_observation(observation_id):
-    """Perform a full update of an existing Observation record.
-
-    Args:
-        observation_id (int): The ID of the observation to update.
-
-    Returns:
-        Response: A JSON representation of the updated observation.
-    """
-
-    observation = Observation.query.filter_by(id=observation_id).first()
-    if not observation:
-        return jsonify(error="Observation not found"), 404
-
-    if not is_same_quarter(observation):
-        return jsonify(error="Can only edit observations in this quarter"), 400
-
-    try:
-        data = request.get_json()
-        if id in data and data["id"] != observation_id:
-            return jsonify(error="ID in request body does not match URL"), 400
-
-        # Setting instance=observation updates the entity we've retrieved from
-        # the database with the new data provided in the request JSON.
-        observation = ObservationSchema().load(data, instance=observation)
-        db.session.commit()
-
-        return ObservationSchema().jsonify(observation), 200
-    except ValidationError as error:
-        return jsonify(error.messages), 400
-
-
-@api.route("/observations/<int:observation_id>", methods=["PATCH"])
-@token_required
-def patch_observation(observation_id):
-    """Perform a partial update of an existing Observation record.
-
-    Args:
-        observation_id (int): The ID of the observation to update.
-
-    Returns:
-        Response: A JSON representation of the updated observation.
-    """
-
-    observation = Observation.query.filter_by(id=observation_id).first()
-    if not observation:
-        return jsonify(error="Observation not found"), 404
-
-    if not is_same_quarter(observation):
-        return jsonify(error="Can only edit observations in this quarter"), 400
-
-    try:
-        data = request.get_json()
-
-        if not data:
-            return jsonify(error="At least one property is required"), 400
-
-        if id in data and data["id"] != observation_id:
-            return jsonify(error="ID in request body does not match URL"), 400
-
-        # Setting partial=True allows us to perform a partial update on the
-        # entity, only updating the fields provided in the request JSON.
-        observation = ObservationSchema().load(
-            data, instance=observation, partial=True
-        )
-        db.session.commit()
-
-        return ObservationSchema().jsonify(observation), 200
-    except ValidationError as error:
-        return jsonify(error.messages), 400
-
-
-@api.route("/observations/<int:observation_id>", methods=["DELETE"])
-@token_required
-def delete_observation(observation_id):
-    """Deletes an observation by ID.
-
-    Args:
-        observation_id (int): The ID of the observation to delete.
-
-    Returns:
-        Response: An error or No Content.
-    """
-
-    observation = Observation.query.filter_by(id=observation_id).first()
-
-    if not observation:
-        return jsonify(error="Observation not found"), 404
-
-    db.session.delete(observation)
-    db.session.commit()
-
-    return "", 204
-
-
 # START: New GET (parameterised queries)
 @api.route("/observations", methods=["GET"])
 @token_required
@@ -259,12 +161,20 @@ def get_observations():
     # numeric filters dynamically
     for key, value in filters.items():
         if value is not None:
-            field_name, op = key.split("_")
-            field = getattr(Observation, field_name)
-            if op == "min":
-                query = query.filter(field >= value)
-            elif op == "max":
-                query = query.filter(field <= value)
+            parts = key.split("_")
+            if len(parts) == 3:
+                _, op, field_name = parts
+            elif len(parts) == 2:
+                op, field_name = parts
+            else:
+                continue
+
+            field = getattr(Observation, field_name, None)
+            if field is not None:
+                if op == "min":
+                    query = query.filter(field >= value)
+                elif op == "max":
+                    query = query.filter(field <= value)
 
     # We execute the query
     observations = query.all()
