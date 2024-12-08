@@ -17,6 +17,7 @@ class Config:
         self.database_track_modifications = env_vars[
             "SQLALCHEMY_TRACK_MODIFICATIONS"
         ]
+        self.jwt_expiry_minutes = int(env_vars["JWT_EXPIRY_MINUTES"])
 
 
 config = Config()

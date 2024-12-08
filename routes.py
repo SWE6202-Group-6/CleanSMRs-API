@@ -33,18 +33,23 @@ def login():
             auth.username == config.website_user
             and auth.password == config.website_password
         ):
+            expires_at = datetime.now(timezone.utc) + timedelta(
+                config.jwt_expiry_minutes
+            )
             token = jwt.encode(
                 {
                     "user": auth.username,
                     "iss": "CleanSMRs API",
                     "iat": datetime.now(timezone.utc),
-                    "exp": datetime.now(timezone.utc) + timedelta(minutes=30),
+                    "exp": expires_at,
                 },
                 config.secret_key,
             )
 
-            return jsonify(token=token), 200
-
+            return jsonify(
+                token=token,
+                expires_at=expires_at.strftime("%Y-%m-%dT%H:%M:%S%z"),
+            )
         return jsonify(message="Invalid credentials"), 401
 
     return jsonify(message="Missing credentials"), 401

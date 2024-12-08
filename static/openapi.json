@@ -43,6 +43,11 @@
                     "token": {
                       "type": "string",
                       "example": "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ1c2VybmFtZSI6ImFkbWluIiwiaWF0IjoxNTE2MjM5MDIyfQ.SflKxwRJSMeKKF2QT4fwpMeJf36POk6yJV_adQssw5c"
+                    },
+                    "expires_at": {
+                      "type": "string",
+                      "format": "datetime",
+                      "example": "2024-01-01T00:00:00+00:00"
                     }
                   }
                 }
