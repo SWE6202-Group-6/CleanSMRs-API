@@ -1,24 +1,21 @@
 """CleanSMRs Web API"""
 
-from dotenv import dotenv_values
 from flask import Flask
 from flask_swagger_ui import get_swaggerui_blueprint
 
+from config import config
 from models import db
 from routes import api as api_blueprint
 from schemas import ma
 
-# Load the configuration from the .env file
-config = dotenv_values(".env")
-
 app = Flask(__name__)
 
 # Configure the app from the loaded configuration
-app.config["SQLALCHEMY_DATABASE_URI"] = config["SQLALCHEMY_DATABASE_URI"]
-app.config["SQLALCHEMY_ECHO"] = config["SQLALCHEMY_ECHO"]
-app.config["SQLALCHEMY_TRACK_MODIFICATIONS"] = config[
-    "SQLALCHEMY_TRACK_MODIFICATIONS"
-]
+app.config["SQLALCHEMY_DATABASE_URI"] = config.database_uri
+app.config["SQLALCHEMY_ECHO"] = config.database_echo
+app.config["SQLALCHEMY_TRACK_MODIFICATIONS"] = (
+    config.database_track_modifications
+)
 
 # Ensure that JSON responses are ordered according to our specified field order
 app.json.sort_keys = False

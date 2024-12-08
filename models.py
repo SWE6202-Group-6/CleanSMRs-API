@@ -22,3 +22,17 @@ class Observation(db.Model):
     haze_percent = db.Column(db.Integer, nullable=False)
     precipitation_mm = db.Column(db.Integer, nullable=False)
     radiation_bq = db.Column(db.Integer, nullable=False)
+    device_id = db.Column(
+        db.Integer, db.ForeignKey("device.id"), nullable=False
+    )
+
+
+class Device(db.Model):
+    """Definition of the Device Model for an IoT device."""
+
+    id = db.Column(db.Integer, primary_key=True, autoincrement=True)
+    name = db.Column(db.String(100), nullable=False)
+    city = db.Column(db.String(100), nullable=False)
+    country = db.Column(db.String(100), nullable=False)
+    status = db.Column(db.String(15), nullable=False)
+    battery_level = db.Column(db.Integer, nullable=False)

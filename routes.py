@@ -3,16 +3,13 @@
 from datetime import datetime, timedelta, timezone
 
 import jwt
-from dotenv import dotenv_values
 from flask import Blueprint, jsonify, request
 from marshmallow import ValidationError
 
 from auth import token_required
+from config import config
 from models import Observation, db
-from schemas import ObservationSchema
-from utils import is_same_quarter
-
-config = dotenv_values(".env")
+from schemas import DeviceSchema, ObservationSchema
 
 # Create a Flask Blueprint for the routes
 api = Blueprint("api", __name__)
@@ -33,8 +30,8 @@ def login():
 
     if auth:
         if (
-            auth.username == config["DEMO_USERNAME"]
-            and auth.password == config["DEMO_PASSWORD"]
+            auth.username == config.website_user
+            and auth.password == config.website_password
         ):
             token = jwt.encode(
                 {
@@ -43,7 +40,7 @@ def login():
                     "iat": datetime.now(timezone.utc),
                     "exp": datetime.now(timezone.utc) + timedelta(minutes=30),
                 },
-                config["SECRET_KEY"],
+                config.secret_key,
             )
 
             return jsonify(token=token), 200
@@ -51,6 +48,32 @@ def login():
         return jsonify(message="Invalid credentials"), 401
 
     return jsonify(message="Missing credentials"), 401
+
+
+@api.route("/devices", methods=["POST"])
+@token_required
+def create_device():
+    """Creates a new Device record.
+
+    Returns:
+        Response: A JSON representation of the created device.
+    """
+
+    # Loading the request JSON into a Device instance using the schema will
+    # carry out basic validation, ensuring all fields are provided or else
+    # raising an exception.
+    try:
+        device = DeviceSchema().load(request.get_json())
+
+        # Add the new device to the database
+        db.session.add(device)
+        db.session.commit()
+
+        return DeviceSchema().jsonify(device), 201
+    except ValidationError as error:
+        # Return any validation errors as JSON along with a Bad Request status
+        # code.
+        return jsonify(error.messages), 400
 
 
 @api.route("/observations", methods=["POST"])
@@ -102,101 +125,6 @@ def create_multiple_observations():
         return jsonify(error.messages, 400)
 
 
-@api.route("/observations/<int:observation_id>", methods=["PUT"])
-@token_required
-def put_observation(observation_id):
-    """Perform a full update of an existing Observation record.
-
-    Args:
-        observation_id (int): The ID of the observation to update.
-
-    Returns:
-        Response: A JSON representation of the updated observation.
-    """
-
-    observation = Observation.query.filter_by(id=observation_id).first()
-    if not observation:
-        return jsonify(error="Observation not found"), 404
-
-    if not is_same_quarter(observation):
-        return jsonify(error="Can only edit observations in this quarter"), 400
-
-    try:
-        data = request.get_json()
-        if id in data and data["id"] != observation_id:
-            return jsonify(error="ID in request body does not match URL"), 400
-
-        # Setting instance=observation updates the entity we've retrieved from
-        # the database with the new data provided in the request JSON.
-        observation = ObservationSchema().load(data, instance=observation)
-        db.session.commit()
-
-        return ObservationSchema().jsonify(observation), 200
-    except ValidationError as error:
-        return jsonify(error.messages), 400
-
-
-@api.route("/observations/<int:observation_id>", methods=["PATCH"])
-@token_required
-def patch_observation(observation_id):
-    """Perform a partial update of an existing Observation record.
-
-    Args:
-        observation_id (int): The ID of the observation to update.
-
-    Returns:
-        Response: A JSON representation of the updated observation.
-    """
-
-    observation = Observation.query.filter_by(id=observation_id).first()
-    if not observation:
-        return jsonify(error="Observation not found"), 404
-
-    if not is_same_quarter(observation):
-        return jsonify(error="Can only edit observations in this quarter"), 400
-
-    try:
-        data = request.get_json()
-
-        if not data:
-            return jsonify(error="At least one property is required"), 400
-
-        if id in data and data["id"] != observation_id:
-            return jsonify(error="ID in request body does not match URL"), 400
-
-        # Setting partial=True allows us to perform a partial update on the
-        # entity, only updating the fields provided in the request JSON.
-        observation = ObservationSchema().load(
-            data, instance=observation, partial=True
-        )
-        db.session.commit()
-
-        return ObservationSchema().jsonify(observation), 200
-    except ValidationError as error:
-        return jsonify(error.messages), 400
-
-
-@api.route("/observations/<int:observation_id>", methods=["DELETE"])
-@token_required
-def delete_observation(observation_id):
-    """Deletes an observation by ID.
-
-    Args:
-        observation_id (int): The ID of the observation to delete.
-
-    Returns:
-        Response: An error or No Content.
-    """
-
-    observation = Observation.query.filter_by(id=observation_id).first()
-
-    if not observation:
-        return jsonify(error="Observation not found"), 404
-
-    db.session.delete(observation)
-    db.session.commit()
-
-    return "", 204
 # START: New GET (parameterised queries)
 @api.route("/observations", methods=["GET"])
 @token_required
@@ -207,30 +135,34 @@ def get_observations():
         Response: A JSON representation of the filtered observations.
     """
 
-    # These are the parameters we would be querying on 
-    date_from = request.args.get('date_from')  # Format: YYYY-MM-DD
-    date_to = request.args.get('date_to')      # Format: YYYY-MM-DD
-    min_latitude = request.args.get('min_latitude', type=float)
-    max_latitude = request.args.get('max_latitude', type=float)
-    min_longitude = request.args.get('min_longitude', type=float)
-    max_longitude = request.args.get('max_longitude', type=float)
+    # These are the parameters we would be querying on
+    date_from = request.args.get("date_from")  # Format: YYYY-MM-DD
+    date_to = request.args.get("date_to")  # Format: YYYY-MM-DD
+    min_latitude = request.args.get("min_latitude", type=float)
+    max_latitude = request.args.get("max_latitude", type=float)
+    min_longitude = request.args.get("min_longitude", type=float)
+    max_longitude = request.args.get("max_longitude", type=float)
 
     # Extraction of the min or max filters for other numeric fields
     filters = {
-        "min_water_temp": request.args.get('min_water_temp', type=int),
-        "max_water_temp": request.args.get('max_water_temp', type=int),
-        "min_air_temp": request.args.get('min_air_temp', type=int),
-        "max_air_temp": request.args.get('max_air_temp', type=int),
-        "min_wind_speed": request.args.get('min_wind_speed', type=int),
-        "max_wind_speed": request.args.get('max_wind_speed', type=int),
-        "min_humidity": request.args.get('min_humidity', type=int),
-        "max_humidity": request.args.get('max_humidity', type=int),
-        "min_haze_percent": request.args.get('min_haze_percent', type=int),
-        "max_haze_percent": request.args.get('max_haze_percent', type=int),
-        "min_precipitation_mm": request.args.get('min_precipitation_mm', type=int),
-        "max_precipitation_mm": request.args.get('max_precipitation_mm', type=int),
-        "min_radiation_bq": request.args.get('min_radiation_bq', type=int),
-        "max_radiation_bq": request.args.get('max_radiation_bq', type=int),
+        "min_water_temp": request.args.get("min_water_temp", type=int),
+        "max_water_temp": request.args.get("max_water_temp", type=int),
+        "min_air_temp": request.args.get("min_air_temp", type=int),
+        "max_air_temp": request.args.get("max_air_temp", type=int),
+        "min_wind_speed": request.args.get("min_wind_speed", type=int),
+        "max_wind_speed": request.args.get("max_wind_speed", type=int),
+        "min_humidity": request.args.get("min_humidity", type=int),
+        "max_humidity": request.args.get("max_humidity", type=int),
+        "min_haze_percent": request.args.get("min_haze_percent", type=int),
+        "max_haze_percent": request.args.get("max_haze_percent", type=int),
+        "min_precipitation_mm": request.args.get(
+            "min_precipitation_mm", type=int
+        ),
+        "max_precipitation_mm": request.args.get(
+            "max_precipitation_mm", type=int
+        ),
+        "min_radiation_bq": request.args.get("min_radiation_bq", type=int),
+        "max_radiation_bq": request.args.get("max_radiation_bq", type=int),
     }
 
     # the biulding of the query
@@ -255,18 +187,23 @@ def get_observations():
     # numeric filters dynamically
     for key, value in filters.items():
         if value is not None:
-            field_name, op = key.split('_')
-            field = getattr(Observation, field_name)
-            if op == 'min':
-                query = query.filter(field >= value)
-            elif op == 'max':
-                query = query.filter(field <= value)
+            parts = key.split("_")
+            if len(parts) == 3:
+                _, op, field_name = parts
+            elif len(parts) == 2:
+                op, field_name = parts
+            else:
+                continue
 
-    # We execute the query lol
+            field = getattr(Observation, field_name, None)
+            if field is not None:
+                if op == "min":
+                    query = query.filter(field >= value)
+                elif op == "max":
+                    query = query.filter(field <= value)
+
+    # We execute the query
     observations = query.all()
 
     # Then we turn the results into a json response format
-    data = ObservationSchema(many=True).dump(observations)
-
-    return jsonify({"data": data, "total": len(data)})
-# END
+    return ObservationSchema(many=True).jsonify(observations), 200

@@ -3,7 +3,7 @@
 from flask_marshmallow import Marshmallow
 
 import app
-from models import Observation
+from models import Device, Observation
 
 ma = Marshmallow(app)
 
@@ -33,7 +33,21 @@ class ObservationSchema(ma.SQLAlchemyAutoSchema):
             "haze_percent",
             "precipitation_mm",
             "radiation_bq",
+            "device_id",
         )
+
+
+class DeviceSchema(ma.SQLAlchemyAutoSchema):
+    """Schema definition for serialising Device entities."""
+
+    class Meta:
+        """Metadata for the DeviceSchema."""
+
+        model = Device
+        load_instance = True
+        ordered = True
+
+        fields = ("id", "name", "city", "country", "status", "battery_level")
 
 
 obervation_schema = ObservationSchema()
