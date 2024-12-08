@@ -3,16 +3,14 @@
 from datetime import datetime, timedelta, timezone
 
 import jwt
-from dotenv import dotenv_values
 from flask import Blueprint, jsonify, request
 from marshmallow import ValidationError
 
 from auth import token_required
+from config import config
 from models import Observation, db
 from schemas import ObservationSchema
 from utils import is_same_quarter
-
-config = dotenv_values(".env")
 
 # Create a Flask Blueprint for the routes
 api = Blueprint("api", __name__)
@@ -33,8 +31,8 @@ def login():
 
     if auth:
         if (
-            auth.username == config["DEMO_USERNAME"]
-            and auth.password == config["DEMO_PASSWORD"]
+            auth.username == config.website_user
+            and auth.password == config.website_password
         ):
             token = jwt.encode(
                 {
@@ -43,7 +41,7 @@ def login():
                     "iat": datetime.now(timezone.utc),
                     "exp": datetime.now(timezone.utc) + timedelta(minutes=30),
                 },
-                config["SECRET_KEY"],
+                config.secret_key,
             )
 
             return jsonify(token=token), 200
@@ -197,6 +195,8 @@ def delete_observation(observation_id):
     db.session.commit()
 
     return "", 204
+
+
 # START: New GET (parameterised queries)
 @api.route("/observations", methods=["GET"])
 @token_required
@@ -207,30 +207,34 @@ def get_observations():
         Response: A JSON representation of the filtered observations.
     """
 
-    # These are the parameters we would be querying on 
-    date_from = request.args.get('date_from')  # Format: YYYY-MM-DD
-    date_to = request.args.get('date_to')      # Format: YYYY-MM-DD
-    min_latitude = request.args.get('min_latitude', type=float)
-    max_latitude = request.args.get('max_latitude', type=float)
-    min_longitude = request.args.get('min_longitude', type=float)
-    max_longitude = request.args.get('max_longitude', type=float)
+    # These are the parameters we would be querying on
+    date_from = request.args.get("date_from")  # Format: YYYY-MM-DD
+    date_to = request.args.get("date_to")  # Format: YYYY-MM-DD
+    min_latitude = request.args.get("min_latitude", type=float)
+    max_latitude = request.args.get("max_latitude", type=float)
+    min_longitude = request.args.get("min_longitude", type=float)
+    max_longitude = request.args.get("max_longitude", type=float)
 
     # Extraction of the min or max filters for other numeric fields
     filters = {
-        "min_water_temp": request.args.get('min_water_temp', type=int),
-        "max_water_temp": request.args.get('max_water_temp', type=int),
-        "min_air_temp": request.args.get('min_air_temp', type=int),
-        "max_air_temp": request.args.get('max_air_temp', type=int),
-        "min_wind_speed": request.args.get('min_wind_speed', type=int),
-        "max_wind_speed": request.args.get('max_wind_speed', type=int),
-        "min_humidity": request.args.get('min_humidity', type=int),
-        "max_humidity": request.args.get('max_humidity', type=int),
-        "min_haze_percent": request.args.get('min_haze_percent', type=int),
-        "max_haze_percent": request.args.get('max_haze_percent', type=int),
-        "min_precipitation_mm": request.args.get('min_precipitation_mm', type=int),
-        "max_precipitation_mm": request.args.get('max_precipitation_mm', type=int),
-        "min_radiation_bq": request.args.get('min_radiation_bq', type=int),
-        "max_radiation_bq": request.args.get('max_radiation_bq', type=int),
+        "min_water_temp": request.args.get("min_water_temp", type=int),
+        "max_water_temp": request.args.get("max_water_temp", type=int),
+        "min_air_temp": request.args.get("min_air_temp", type=int),
+        "max_air_temp": request.args.get("max_air_temp", type=int),
+        "min_wind_speed": request.args.get("min_wind_speed", type=int),
+        "max_wind_speed": request.args.get("max_wind_speed", type=int),
+        "min_humidity": request.args.get("min_humidity", type=int),
+        "max_humidity": request.args.get("max_humidity", type=int),
+        "min_haze_percent": request.args.get("min_haze_percent", type=int),
+        "max_haze_percent": request.args.get("max_haze_percent", type=int),
+        "min_precipitation_mm": request.args.get(
+            "min_precipitation_mm", type=int
+        ),
+        "max_precipitation_mm": request.args.get(
+            "max_precipitation_mm", type=int
+        ),
+        "min_radiation_bq": request.args.get("min_radiation_bq", type=int),
+        "max_radiation_bq": request.args.get("max_radiation_bq", type=int),
     }
 
     # the biulding of the query
@@ -255,18 +259,15 @@ def get_observations():
     # numeric filters dynamically
     for key, value in filters.items():
         if value is not None:
-            field_name, op = key.split('_')
+            field_name, op = key.split("_")
             field = getattr(Observation, field_name)
-            if op == 'min':
+            if op == "min":
                 query = query.filter(field >= value)
-            elif op == 'max':
+            elif op == "max":
                 query = query.filter(field <= value)
 
-    # We execute the query lol
+    # We execute the query
     observations = query.all()
 
     # Then we turn the results into a json response format
-    data = ObservationSchema(many=True).dump(observations)
-
-    return jsonify({"data": data, "total": len(data)})
-# END
+    return ObservationSchema(many=True).jsonify(observations), 200
