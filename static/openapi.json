@@ -11,6 +11,10 @@
       "description": "Authentication endpoints"
     },
     {
+      "name": "Devices",
+      "description": "IoT Device endpoints"
+    },
+    {
       "name": "Observations",
       "description": "Climate observation"
     }
@@ -47,6 +51,48 @@
           },
           "401": {
             "description": "Invalid username or password"
+          }
+        }
+      }
+    },
+    "/devices": {
+      "post": {
+        "tags": [
+          "Devices"
+        ],
+        "summary": "Create a new IoT device record",
+        "description": "Create a new IoT device record",
+        "security": [
+          {
+            "bearerAuth": []
+          }
+        ],
+        "requestBody": {
+          "description": "Create a new device",
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/Device"
+              }
+            }
+          }
+        },
+        "responses": {
+          "201": {
+            "description": "Successful operation",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Device"
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "Invalid data supplied"
+          },
+          "401": {
+            "description": "Unauthorised"
           }
         }
       }
@@ -302,7 +348,7 @@
             }
           },
           "401": {
-            "description": "Unauthorized"
+            "description": "Unauthorised"
           }
         }
       },
@@ -341,6 +387,9 @@
           },
           "400": {
             "description": "Invalid data supplied"
+          },
+          "401": {
+            "description": "Unauthorised"
           }
         }
       }
@@ -384,6 +433,9 @@
           },
           "400": {
             "description": "Invalid data supplied"
+          },
+          "401": {
+            "description": "Unauthorised"
           }
         }
       }
@@ -402,6 +454,36 @@
       }
     },
     "schemas": {
+      "Device": {
+        "type": "object",
+        "properties": {
+          "id": {
+            "type": "integer",
+            "format": "int64",
+            "example": 10
+          },
+          "name": {
+            "type": "string",
+            "example": "DV-001"
+          },
+          "city": {
+            "type": "string",
+            "example": "London"
+          },
+          "country": {
+            "type": "string",
+            "example": "United Kingdom"
+          },
+          "status": {
+            "type": "string",
+            "example": "Online"
+          },
+          "battery_level": {
+            "type": "integer",
+            "example": 50
+          }
+        }
+      },
       "Observation": {
         "type": "object",
         "properties": {
@@ -428,7 +510,7 @@
             "type": "number",
             "example": 51.00007
           },
-          "longtitude": {
+          "longitude": {
             "type": "number",
             "example": -3.5678
           },
@@ -462,6 +544,11 @@
           },
           "radiation_bq": {
             "type": "number",
+            "example": 1
+          },
+          "device_id": {
+            "type": "integer",
+            "format": "int64",
             "example": 1
           }
         }

@@ -22,7 +22,9 @@ class Observation(db.Model):
     haze_percent = db.Column(db.Integer, nullable=False)
     precipitation_mm = db.Column(db.Integer, nullable=False)
     radiation_bq = db.Column(db.Integer, nullable=False)
-    device = db.Column(db.Integer, db.ForeignKey("device.id"), nullable=False)
+    device_id = db.Column(
+        db.Integer, db.ForeignKey("device.id"), nullable=False
+    )
 
 
 class Device(db.Model):

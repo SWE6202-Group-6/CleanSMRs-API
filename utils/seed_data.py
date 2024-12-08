@@ -67,7 +67,7 @@ def seed_data(num_devices=5, num_observations=20):
                 haze_percent=random.randint(0, 100),
                 precipitation_mm=random.randint(0, 500),
                 radiation_bq=random.randint(0, 100),
-                device=device.id,
+                device_id=device.id,
             )
             db.session.add(observation)
         db.session.commit()

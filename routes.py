@@ -9,7 +9,7 @@ from marshmallow import ValidationError
 from auth import token_required
 from config import config
 from models import Observation, db
-from schemas import ObservationSchema
+from schemas import DeviceSchema, ObservationSchema
 
 # Create a Flask Blueprint for the routes
 api = Blueprint("api", __name__)
@@ -48,6 +48,32 @@ def login():
         return jsonify(message="Invalid credentials"), 401
 
     return jsonify(message="Missing credentials"), 401
+
+
+@api.route("/devices", methods=["POST"])
+@token_required
+def create_device():
+    """Creates a new Device record.
+
+    Returns:
+        Response: A JSON representation of the created device.
+    """
+
+    # Loading the request JSON into a Device instance using the schema will
+    # carry out basic validation, ensuring all fields are provided or else
+    # raising an exception.
+    try:
+        device = DeviceSchema().load(request.get_json())
+
+        # Add the new device to the database
+        db.session.add(device)
+        db.session.commit()
+
+        return DeviceSchema().jsonify(device), 201
+    except ValidationError as error:
+        # Return any validation errors as JSON along with a Bad Request status
+        # code.
+        return jsonify(error.messages), 400
 
 
 @api.route("/observations", methods=["POST"])
