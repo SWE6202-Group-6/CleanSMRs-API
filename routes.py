@@ -19,9 +19,6 @@ api = Blueprint("api", __name__)
 def login():
     """Attempts to log a user in with the provided credentials.
 
-    Note that this endpoint is for demo purposes and should be replaced by
-    requesting a token from the CleanSMRs website in future.
-
     Returns:
         Response: A JSON web token or an error message.
     """
