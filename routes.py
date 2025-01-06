@@ -31,7 +31,7 @@ def login():
             and auth.password == config.website_password
         ):
             expires_at = datetime.now(timezone.utc) + timedelta(
-                config.jwt_expiry_minutes
+                minutes=config.jwt_expiry_minutes
             )
             token = jwt.encode(
                 {
