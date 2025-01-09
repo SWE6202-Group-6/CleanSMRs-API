@@ -189,7 +189,9 @@ def get_observations():
         if value is not None:
             parts = key.split("_")
             if len(parts) == 3:
-                _, op, field_name = parts
+                op, field_part_1, field_part_2 = parts
+                field_name = f"{field_part_1}_{field_part_2}"
+                print(field_name)
             elif len(parts) == 2:
                 op, field_name = parts
             else:
